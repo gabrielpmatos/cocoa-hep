@@ -7,7 +7,7 @@ source /cvmfs/sft.cern.ch/lcg/releases/LCG_96b/HepMC/2.06.10/x86_64-centos7-gcc8
 source /cvmfs/sft.cern.ch/lcg/releases/LCG_96b/jsoncpp/1.8.4/x86_64-centos7-gcc8-opt/jsoncpp-env.sh
 source /cvmfs/sft.cern.ch/lcg/releases/LCG_96b/CMake/3.14.3/x86_64-centos7-gcc8-opt/CMake-env.sh
 source /cvmfs/sft.cern.ch/lcg/releases/LCG_96b/cmaketools/1.8/x86_64-centos7-gcc8-opt/cmaketools-env.sh
-source /cvmfs/sft.cern.ch/lcg/releases/LCG_96b/MCGenerators/pythia8/301/x86_64-centos7-gcc8-opt/pythia8env-genser.sh
+source /cvmfs/sft.cern.ch/lcg/releases/LCG_96b/MCGenerators/pythia8/303/x86_64-centos7-gcc8-opt/pythia8env-genser.sh
 source /cvmfs/sft.cern.ch/lcg/releases/LCG_96b/fastjet/3.3.2/x86_64-centos7-gcc8-opt/fastjet-env.sh
 export PYTHIA8DATA=$PYTHIA8_HOME/share/Pythia8/xmldoc   
 cd $CURRENTDIR
