@@ -3,7 +3,7 @@
     "Macro_file_path":"macro/Pythia8/ttbar.in",
     "Type_of_running": "Standard",
     "Save_truth_particle_graph": true,
-    "Skip_unuseable_tracks": false,
+    "Skip_unuseable_tracks": true,
     "Do_superclustering": true,
     "Geometry_definition":
     {
