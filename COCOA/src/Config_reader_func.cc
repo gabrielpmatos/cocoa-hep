@@ -75,11 +75,32 @@ Config_reader_func::Config_reader_func(std::string path, Config_reader_var &conf
     config_var.Material_ECAL = Material_build("ECAL");
     config_var.Material_HCAL = Material_build("HCAL");
 
+    // ==============================================================
     //* Fill low resolution
-    Json::Value &characters = configs["Geometry_definition"]["Detector_granularity"]["Number_of_pixels_ECAL"];
-    Fill_1D_vector(characters, config_var.low_resolution.number_of_pixels_ECAL); // Low_number_of_pixels_ECAL
-    characters = configs["Geometry_definition"]["Detector_granularity"]["Number_of_pixels_HCAL"];
-    Fill_1D_vector(characters, config_var.low_resolution.number_of_pixels_HCAL); //Low_resolution_number_of_pixels_HCAL
+    // ==============================================================
+    //* Custom detector segmentations in eta/phi.
+    Json::Value &characters = configs["Geometry_definition"]["Detector_granularity"]["Eta_segmentation_ECAL"];
+    Fill_1D_vector(characters, config_var.low_resolution.eta_segmentation_ECAL); // Low_eta_segmentation_ECAL
+    characters = configs["Geometry_definition"]["Detector_granularity"]["Phi_segmentation_ECAL"];
+    Fill_1D_vector(characters, config_var.low_resolution.phi_segmentation_ECAL); // Low_phi_segmentation_ECAL
+    characters = configs["Geometry_definition"]["Detector_granularity"]["Eta_segmentation_HCAL"];
+    Fill_1D_vector(characters, config_var.low_resolution.eta_segmentation_HCAL); // Low_eta_segmentation_HCAL
+    characters = configs["Geometry_definition"]["Detector_granularity"]["Phi_segmentation_HCAL"];
+    Fill_1D_vector(characters, config_var.low_resolution.phi_segmentation_HCAL); // Low_phi_segmentation_HCAL
+
+    //* Number of pixels -> with changes above this is used as placeholder.
+    Get_N_pixels(
+        config_var.low_resolution.eta_segmentation_ECAL, 
+        config_var.low_resolution.phi_segmentation_ECAL, 
+        config_var.low_resolution.number_of_pixels_ECAL
+    );
+ 
+    Get_N_pixels(
+        config_var.low_resolution.eta_segmentation_HCAL, 
+        config_var.low_resolution.phi_segmentation_HCAL, 
+        config_var.low_resolution.number_of_pixels_HCAL
+    );
+ 
     characters = configs["Geometry_definition"]["Detector_granularity"]["Width_of_ECAL_layers_in_X0"];
     Fill_1D_vector(characters, config_var.low_resolution.resolution_width_of_ECAL_layers_in_X0); //Low_resolution_width_of_ECAL_layers_in_X0
     characters = configs["Geometry_definition"]["Detector_granularity"]["Width_of_HCAL_layers_in_Lambda_int"];
@@ -121,8 +142,10 @@ Config_reader_func::Config_reader_func(std::string path, Config_reader_var &conf
     for (int ilow_layer = 0; ilow_layer < nLow_Layers; ilow_layer++)
     {
         config_var.low_resolution.layer_noise.push_back(config_var.low_resolution.layer_noise_ECAL.at(ilow_layer).at(0));
-        config_var.low_resolution.layer_deta_ECAL.at(ilow_layer).at(0) = 2 * config_var.max_eta_endcap / config_var.low_resolution.number_of_pixels_ECAL.at(ilow_layer).at(0); // Low_number_of_pixels_ECAL.at(ilow_layer);
-        config_var.low_resolution.layer_dphi_ECAL.at(ilow_layer).at(0) = config_var.max_phi / config_var.low_resolution.number_of_pixels_ECAL.at(ilow_layer).at(0);
+        config_var.low_resolution.layer_deta_ECAL.at(ilow_layer).at(0) = 2 * config_var.max_eta_endcap / config_var.low_resolution.eta_segmentation_ECAL.at(ilow_layer).at(0);
+        config_var.low_resolution.layer_dphi_ECAL.at(ilow_layer).at(0) = config_var.max_phi / config_var.low_resolution.phi_segmentation_ECAL.at(ilow_layer).at(0);
+        config_var.low_resolution.eta_segmentation_flatten.push_back(config_var.low_resolution.eta_segmentation_ECAL.at(ilow_layer).at(0));
+        config_var.low_resolution.phi_segmentation_flatten.push_back(config_var.low_resolution.phi_segmentation_ECAL.at(ilow_layer).at(0));
         config_var.low_resolution.number_of_pixels_flatten.push_back(config_var.low_resolution.number_of_pixels_ECAL.at(ilow_layer).at(0));
         config_var.low_resolution.layer_deta_flatten.push_back(config_var.low_resolution.layer_deta_ECAL.at(ilow_layer).at(0));
         config_var.low_resolution.layer_dphi_flatten.push_back(config_var.low_resolution.layer_dphi_ECAL.at(ilow_layer).at(0));
@@ -141,8 +164,10 @@ Config_reader_func::Config_reader_func(std::string path, Config_reader_var &conf
     for (int ilow_layer = 0; ilow_layer < nLow_Layers; ilow_layer++)
     {
         config_var.low_resolution.layer_noise.push_back(config_var.low_resolution.layer_noise_HCAL.at(ilow_layer).at(0));
-        config_var.low_resolution.layer_deta_HCAL.at(ilow_layer).at(0) = 2 * config_var.max_eta_endcap / config_var.low_resolution.number_of_pixels_HCAL.at(ilow_layer).at(0);
-        config_var.low_resolution.layer_dphi_HCAL.at(ilow_layer).at(0) = config_var.max_phi / config_var.low_resolution.number_of_pixels_HCAL.at(ilow_layer).at(0);
+        config_var.low_resolution.layer_deta_HCAL.at(ilow_layer).at(0) = 2 * config_var.max_eta_endcap / config_var.low_resolution.eta_segmentation_HCAL.at(ilow_layer).at(0);
+        config_var.low_resolution.layer_dphi_HCAL.at(ilow_layer).at(0) = config_var.max_phi / config_var.low_resolution.phi_segmentation_HCAL.at(ilow_layer).at(0);
+        config_var.low_resolution.eta_segmentation_flatten.push_back(config_var.low_resolution.eta_segmentation_HCAL.at(ilow_layer).at(0));
+        config_var.low_resolution.phi_segmentation_flatten.push_back(config_var.low_resolution.phi_segmentation_HCAL.at(ilow_layer).at(0));
         config_var.low_resolution.number_of_pixels_flatten.push_back(config_var.low_resolution.number_of_pixels_HCAL.at(ilow_layer).at(0));
         config_var.low_resolution.layer_dphi_flatten.push_back(config_var.low_resolution.layer_dphi_HCAL.at(ilow_layer).at(0));
         config_var.low_resolution.layer_deta_flatten.push_back(config_var.low_resolution.layer_deta_HCAL.at(ilow_layer).at(0));
@@ -157,6 +182,11 @@ Config_reader_func::Config_reader_func(std::string path, Config_reader_var &conf
     }
     //* Fill low resolution end
     config_var.low_resolution.kNLayers = kNLayers;
+    // ==============================================================
+    //* Fill high resolution
+    // ==============================================================
+
+    //* NOTE: TODO, this won't work for now.
     if (config_var.Use_high_granularity)
     {
         kNLayers = 0;
@@ -356,4 +386,36 @@ void Config_reader_func::Fill_2D_vector(const Json::Value &Json_list, std::vecto
         }
         vec.push_back(vec_elem);
     }
+}
+
+void Config_reader_func::Get_N_pixels(const std::vector<std::vector<int>>& eta_segmentation, const std::vector<std::vector<int>>& phi_segmentation, std::vector<std::vector<int>>& vec)
+{
+    if (eta_segmentation.size() != phi_segmentation.size())
+    {
+        /*
+            TODO: need to enforce that both the eta, phi segmentation lists are the same length
+            otherwise we should have COCOA throw an error and inform the user.
+        */
+    }
+
+    vec.clear();    
+    for (unsigned int i = 0; i < eta_segmentation.size(); i++)
+    {
+        std::vector<int> vec_elem;
+        vec_elem.clear();
+
+        if (eta_segmentation.at(i).size() != phi_segmentation.at(i).size())
+        {
+            // Same here TODO.
+        }
+
+        for (unsigned int j = 0; j < eta_segmentation.at(i).size(); j++)
+        {
+            vec_elem.push_back(eta_segmentation.at(i).at(j) * phi_segmentation.at(i).at(j));
+        }
+ 
+        vec.push_back(vec_elem);
+    }
+
+
 }

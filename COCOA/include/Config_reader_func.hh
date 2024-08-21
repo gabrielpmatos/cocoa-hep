@@ -23,6 +23,8 @@ class Config_reader_func
         void Fill_1D_vector(const Json::Value& Json_list, std::vector<std::string>& vec);
         void Fill_2D_vector(const Json::Value& Json_list, std::vector< std::vector<long double> >& vec);
         void Fill_2D_vector(const Json::Value& Json_list, std::vector< std::vector<int> >& vec);
+        void Get_N_pixels(const std::vector<std::vector<int>>& eta_segmentation, const std::vector<std::vector<int>>& phi_segmentation, std::vector<std::vector<int>>& vec);
+       
         G4Material *Material_build(std::string name);
 
 };
