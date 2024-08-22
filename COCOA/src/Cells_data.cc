@@ -1,23 +1,30 @@
 #include "Cells_data.hh"
-
+#include <stdexcept>
 
 Cells_data::Cells_data(bool is_high)
 {
 	high = is_high;
-	if (high)
+	if (high) // TODO: need to implement for high granularity calo.
+        {
 		Number_Pixel_Flatten = config_var.high_resolution.number_of_pixels_flatten;
+                throw std::invalid_argument("High granularity not implemented."); 
+	}
 	else
+	{
 		Number_Pixel_Flatten = config_var.low_resolution.number_of_pixels_flatten;
+                Eta_Segmentation_Flatten = config_var.low_resolution.eta_segmentation_flatten;
+                Phi_Segmentation_Flatten = config_var.low_resolution.phi_segmentation_flatten;
+	}
+
 	ilay_num = Number_Pixel_Flatten.size();
 	
 	for (int ilow = 0; ilow < ilay_num; ilow++)
 	{
-		std::vector<std::vector<Cell>> vect_cell(Number_Pixel_Flatten.at(ilow),
-												 std::vector<Cell>(Number_Pixel_Flatten.at(ilow)));
+		std::vector<std::vector<Cell>> vect_cell(Eta_Segmentation_Flatten.at(ilow), std::vector<Cell>(Phi_Segmentation_Flatten.at(ilow)));
 		fCell_array.push_back(vect_cell);
-		for (int ieta = 0; ieta < Number_Pixel_Flatten.at(ilow); ieta++)
+		for (int ieta = 0; ieta < Eta_Segmentation_Flatten.at(ilow); ieta++)
 		{
-			for (int iphi = 0; iphi < Number_Pixel_Flatten.at(ilow); iphi++)
+			for (int iphi = 0; iphi < Phi_Segmentation_Flatten.at(ilow); iphi++)
 			{
 				fCell_array.at(ilow).at(ieta).at(iphi).Reset();
 				fCell_array.at(ilow).at(ieta).at(iphi).set_indexes(ilow, ieta, iphi, high);
@@ -47,12 +54,11 @@ void Cells_data::clear()
 	cell_parent_energy.clear();
 	for (int ilow = 0; ilow < ilay_num; ilow++)
 	{
-		std::vector<std::vector<Cell>> vect_cell(Number_Pixel_Flatten.at(ilow),
-												 std::vector<Cell>(Number_Pixel_Flatten.at(ilow)));
+		std::vector<std::vector<Cell>> vect_cell(Eta_Segmentation_Flatten.at(ilow), std::vector<Cell>(Phi_Segmentation_Flatten.at(ilow)));
 		fCell_array.push_back(vect_cell);
-		for (int ieta = 0; ieta < Number_Pixel_Flatten.at(ilow); ieta++)
+		for (int ieta = 0; ieta < Eta_Segmentation_Flatten.at(ilow); ieta++)
 		{
-			for (int iphi = 0; iphi < Number_Pixel_Flatten.at(ilow); iphi++)
+			for (int iphi = 0; iphi < Phi_Segmentation_Flatten.at(ilow); iphi++)
 			{
 				fCell_array.at(ilow).at(ieta).at(iphi).Reset();
 				fCell_array.at(ilow).at(ieta).at(iphi).set_indexes(ilow, ieta, iphi, high);
@@ -65,9 +71,9 @@ void Cells_data::ChangeLabelForCells(int OldLabel, int NewLabel)
 {
 	for (int ilow = 0; ilow < ilay_num; ilow++)
 	{
-		for (int ieta = 0; ieta < Number_Pixel_Flatten.at(ilow); ieta++)
+		for (int ieta = 0; ieta < Eta_Segmentation_Flatten.at(ilow); ieta++)
 		{
-			for (int iphi = 0; iphi < Number_Pixel_Flatten.at(ilow); iphi++)
+			for (int iphi = 0; iphi < Phi_Segmentation_Flatten.at(ilow); iphi++)
 			{
 				Cell &local_cell = fCell_array.at(ilow).at(ieta).at(iphi);
 				int cell_lab = local_cell.get_label();
@@ -84,6 +90,7 @@ void Cells_data::ChangeLabelForCells(int OldLabel, int NewLabel)
 void Cells_data::set_tree_branches(TTree *outTree)
 {
 	//* cell branches
+	// TODO: add unique cell index to this.
     if ( config_var.doPFlow )
 	    outTree->Branch("cell_pflow_object_idx"   , "vector<int>",   &cell_pflow_object_idx);
 	outTree->Branch("cell_layer", "vector<int>", &cell_layer);
@@ -213,9 +220,9 @@ void Cells_data::fill_cells_in_topoclusters()
 	int pos_in_list = 0;
     for (int ilay = 0; ilay < ilay_num; ilay++)
     {
-        for (int ieta = 0; ieta < (int) Number_Pixel_Flatten.at(ilay); ieta++)
+        for (int ieta = 0; ieta < (int) Eta_Segmentation_Flatten.at(ilay); ieta++)
         {
-            for (int iphi = 0; iphi < (int) Number_Pixel_Flatten.at(ilay); iphi++)
+            for (int iphi = 0; iphi < (int) Phi_Segmentation_Flatten.at(ilay); iphi++)
             {
                 Cell &local_cell = fCell_array.at(ilay).at(ieta).at(iphi);
                 if (local_cell.get_label() != 0)

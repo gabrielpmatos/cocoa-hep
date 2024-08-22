@@ -1,6 +1,6 @@
 #include "ReduceResolution.hh"
 
-
+// FIXME: not implemented for high granularity running.
 ReduceResolution::ReduceResolution(std::vector<std::vector<std::vector<Cell>>> &CellArray_High, std::vector<std::vector<std::vector<Cell>>> &CellArray_Low)
 {
     init_low = 0;

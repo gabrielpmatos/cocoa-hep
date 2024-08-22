@@ -11,7 +11,9 @@ class Cells_data
 {
 private:
     bool high;
-    std::vector<int> Number_Pixel_Flatten;
+    std::vector<int> Eta_Segmentation_Flatten;
+    std::vector<int> Phi_Segmentation_Flatten;
+    std::vector<int> Number_Pixel_Flatten; // FIXME: deprecated.
     Config_reader_var &config_var = Config_reader_var::GetInstance();
     std::vector<int> cell_pflow_object_idx;
     std::vector<int> cell_layer;

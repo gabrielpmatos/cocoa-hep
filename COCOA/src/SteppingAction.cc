@@ -385,8 +385,8 @@ void SteppingAction::UserSteppingAction(const G4Step *astep)
 		
 		
 		if ((*Bin >= 0 && *Bin < geometry.kNLayers))
-		{
-			if ((*(Bin + 1) >= 0 && *(Bin + 1) < geometry.number_of_pixels_flatten.at(*Bin)) && (*(Bin + 2) >= 0 && *(Bin + 2) < geometry.number_of_pixels_flatten.at(*Bin)))
+		{       // NOTE: checking whether deposit in an energy bin within the detector segmentation.
+			if ((*(Bin + 1) >= 0 && *(Bin + 1) < geometry.eta_segmentation_flatten.at(*Bin)) && (*(Bin + 2) >= 0 && *(Bin + 2) < geometry.phi_segmentation_flatten.at(*Bin)))
 			{
 				Etot = Ech + Enu;
 				// runData->AddTotalEnergy(Ech, Enu);
