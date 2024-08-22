@@ -19,12 +19,12 @@ class CalorimeterConstruction {
         ~CalorimeterConstruction();
         void EndCap_Calorimeter();
         void Barrel_Calorimeter();
-        void Build_Barrel_CAL ( int NumberOfPixel, int cellMergeFactor,
+        void Build_Barrel_CAL ( int NumberOfEtaCells, int cellMergeFactor, int NumberOfPhiCells,
 				long double d_eta, long double d_phi, 
                                 long double r_inn, long double r_out, long double previous_layers_delta_r,
                                 G4Material *Material_CAL, G4VisAttributes* VisAtt, 
                                 const char *LV,  const char *PL, int direction);
-        void Build_EndCap_CAL( int NumberOfPixel, int cellMergeFactor, long double d_phi, 
+        void Build_EndCap_CAL( int NumberOfEtaCells, int cellMergeFactor, int NumberOfPhiCells, long double d_phi, 
 			       long double r_inn_barrel, long double depth, long double previous_layers_depths,
 			       G4Material *Material_CAL, G4VisAttributes* VisAtt, 
 			       const char *LV,  const char *PL, int direction );
@@ -33,6 +33,8 @@ class CalorimeterConstruction {
         template <typename T>
 	T           GetMinOrMax(const std::vector<std::vector<T > >& array_2d, bool chooseMin) const;
         int         GetNPixelsMax() const;
+        int         GetEtaSegmentationMax() const; // NOTE: could maybe just be one func.
+        int         GetPhiSegmentationMax() const;
         long double GetMinDPhi() const;
         bool        CheckMergeFactor( int NumberOfPixel, int cellMergeFactor ) const;
         std::vector<G4VSolid*>* MergeCells( std::vector<G4VSolid*>* cells_to_merge,
