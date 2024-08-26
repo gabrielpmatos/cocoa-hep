@@ -76,10 +76,16 @@ Config_reader_func::Config_reader_func(std::string path, Config_reader_var &conf
     config_var.Material_HCAL = Material_build("HCAL");
 
     //* Fill low resolution
-    Json::Value &characters = configs["Geometry_definition"]["Detector_granularity"]["Number_of_pixels_ECAL"];
-    Fill_1D_vector(characters, config_var.low_resolution.number_of_pixels_ECAL); // Low_number_of_pixels_ECAL
-    characters = configs["Geometry_definition"]["Detector_granularity"]["Number_of_pixels_HCAL"];
-    Fill_1D_vector(characters, config_var.low_resolution.number_of_pixels_HCAL); //Low_resolution_number_of_pixels_HCAL
+
+    Json::Value &characters = configs["Geometry_definition"]["Detector_granularity"]["Eta_segmentation_ECAL"];
+    Fill_1D_vector(characters, config_var.low_resolution.eta_segmentation_ECAL);
+    characters = configs["Geometry_definition"]["Detector_granularity"]["Phi_segmentation_ECAL"];
+    Fill_1D_vector(characters, config_var.low_resolution.phi_segmentation_ECAL);
+    characters = configs["Geometry_definition"]["Detector_granularity"]["Eta_segmentation_HCAL"];
+    Fill_1D_vector(characters, config_var.low_resolution.eta_segmentation_HCAL);
+    characters = configs["Geometry_definition"]["Detector_granularity"]["Phi_segmentation_HCAL"];
+    Fill_1D_vector(characters, config_var.low_resolution.phi_segmentation_HCAL);
+    // TODO: Add number of pixels.
     characters = configs["Geometry_definition"]["Detector_granularity"]["Width_of_ECAL_layers_in_X0"];
     Fill_1D_vector(characters, config_var.low_resolution.resolution_width_of_ECAL_layers_in_X0); //Low_resolution_width_of_ECAL_layers_in_X0
     characters = configs["Geometry_definition"]["Detector_granularity"]["Width_of_HCAL_layers_in_Lambda_int"];
@@ -121,9 +127,11 @@ Config_reader_func::Config_reader_func(std::string path, Config_reader_var &conf
     for (int ilow_layer = 0; ilow_layer < nLow_Layers; ilow_layer++)
     {
         config_var.low_resolution.layer_noise.push_back(config_var.low_resolution.layer_noise_ECAL.at(ilow_layer).at(0));
-        config_var.low_resolution.layer_deta_ECAL.at(ilow_layer).at(0) = 2 * config_var.max_eta_endcap / config_var.low_resolution.number_of_pixels_ECAL.at(ilow_layer).at(0); // Low_number_of_pixels_ECAL.at(ilow_layer);
-        config_var.low_resolution.layer_dphi_ECAL.at(ilow_layer).at(0) = config_var.max_phi / config_var.low_resolution.number_of_pixels_ECAL.at(ilow_layer).at(0);
-        config_var.low_resolution.number_of_pixels_flatten.push_back(config_var.low_resolution.number_of_pixels_ECAL.at(ilow_layer).at(0));
+        config_var.low_resolution.layer_deta_ECAL.at(ilow_layer).at(0) = 2 * config_var.max_eta_endcap / config_var.low_resolution.eta_segmentation_ECAL.at(ilow_layer).at(0);
+        config_var.low_resolution.layer_dphi_ECAL.at(ilow_layer).at(0) = config_var.max_phi / config_var.low_resolution.phi_segmentation_ECAL.at(ilow_layer).at(0);
+        config_var.low_resolution.eta_segmentation_flatten.push_back(config_var.low_resolution.eta_segmentation_ECAL.at(ilow_layer).at(0));
+        config_var.low_resolution.phi_segmentation_flatten.push_back(config_var.low_resolution.phi_segmentation_ECAL.at(ilow_layer).at(0));
+        // TODO: Add number of pixels.
         config_var.low_resolution.layer_deta_flatten.push_back(config_var.low_resolution.layer_deta_ECAL.at(ilow_layer).at(0));
         config_var.low_resolution.layer_dphi_flatten.push_back(config_var.low_resolution.layer_dphi_ECAL.at(ilow_layer).at(0));
         long double r_out = r_inn + config_var.low_resolution.resolution_width_of_ECAL_layers_in_X0.at(ilow_layer).at(0) * config_var.Material_ECAL->GetRadlen();
@@ -141,9 +149,11 @@ Config_reader_func::Config_reader_func(std::string path, Config_reader_var &conf
     for (int ilow_layer = 0; ilow_layer < nLow_Layers; ilow_layer++)
     {
         config_var.low_resolution.layer_noise.push_back(config_var.low_resolution.layer_noise_HCAL.at(ilow_layer).at(0));
-        config_var.low_resolution.layer_deta_HCAL.at(ilow_layer).at(0) = 2 * config_var.max_eta_endcap / config_var.low_resolution.number_of_pixels_HCAL.at(ilow_layer).at(0);
-        config_var.low_resolution.layer_dphi_HCAL.at(ilow_layer).at(0) = config_var.max_phi / config_var.low_resolution.number_of_pixels_HCAL.at(ilow_layer).at(0);
-        config_var.low_resolution.number_of_pixels_flatten.push_back(config_var.low_resolution.number_of_pixels_HCAL.at(ilow_layer).at(0));
+        config_var.low_resolution.layer_deta_HCAL.at(ilow_layer).at(0) = 2 * config_var.max_eta_endcap / config_var.low_resolution.eta_segmentation_HCAL.at(ilow_layer).at(0);
+        config_var.low_resolution.layer_dphi_HCAL.at(ilow_layer).at(0) = config_var.max_phi / config_var.low_resolution.phi_segmentation_HCAL.at(ilow_layer).at(0);
+        config_var.low_resolution.eta_segmentation_flatten.push_back(config_var.low_resolution.eta_segmentation_HCAL.at(ilow_layer).at(0));
+        config_var.low_resolution.phi_segmentation_flatten.push_back(config_var.low_resolution.phi_segmentation_HCAL.at(ilow_layer).at(0));
+        // TODO: Add number of pixels.
         config_var.low_resolution.layer_dphi_flatten.push_back(config_var.low_resolution.layer_dphi_HCAL.at(ilow_layer).at(0));
         config_var.low_resolution.layer_deta_flatten.push_back(config_var.low_resolution.layer_deta_HCAL.at(ilow_layer).at(0));
         long double r_out = r_inn + config_var.low_resolution.resolution_width_of_HCAL_layers_in_Lambda_int.at(ilow_layer).at(0) * config_var.Material_HCAL->GetNuclearInterLength();
@@ -161,10 +171,15 @@ Config_reader_func::Config_reader_func(std::string path, Config_reader_var &conf
     {
         kNLayers = 0;
         //* Fill high resolution
-        characters = configs["Geometry_definition"]["High_Granularity_detector"]["Number_of_pixels_ECAL"];
-        Fill_2D_vector(characters, config_var.high_resolution.number_of_pixels_ECAL);
-        characters = configs["Geometry_definition"]["High_Granularity_detector"]["Number_of_pixels_HCAL"];
-        Fill_2D_vector(characters, config_var.high_resolution.number_of_pixels_HCAL);
+        characters = configs["Geometry_definition"]["High_Granularity_detector"]["Eta_segmentation_ECAL"];
+        Fill_2D_vector(characters, config_var.high_resolution.eta_segmentation_ECAL);
+        characters = configs["Geometry_definition"]["High_Granularity_detector"]["Phi_segmentation_ECAL"];
+        Fill_2D_vector(characters, config_var.high_resolution.phi_segmentation_ECAL);
+        characters = configs["Geometry_definition"]["High_Granularity_detector"]["Eta_segmentation_HCAL"];
+        Fill_2D_vector(characters, config_var.high_resolution.eta_segmentation_HCAL);
+        characters = configs["Geometry_definition"]["High_Granularity_detector"]["Phi_segmentation_HCAL"];
+        Fill_2D_vector(characters, config_var.high_resolution.phi_segmentation_HCAL);
+        // TODO: Add number of pixels.
         characters = configs["Geometry_definition"]["High_Granularity_detector"]["Width_of_ECAL_layers_in_X0"];
         Fill_2D_vector(characters, config_var.high_resolution.resolution_width_of_ECAL_layers_in_X0);
         characters = configs["Geometry_definition"]["High_Granularity_detector"]["Width_of_HCAL_layers_in_Lambda_int"];
@@ -189,9 +204,11 @@ Config_reader_func::Config_reader_func(std::string path, Config_reader_var &conf
             kNLayers += nHigh_Layers;
             for (int ihigh_layer = 0; ihigh_layer < nHigh_Layers; ihigh_layer++)
             {
-                config_var.high_resolution.layer_deta_ECAL.at(ilow_layer).at(ihigh_layer) = 2 * config_var.max_eta_endcap / config_var.high_resolution.number_of_pixels_ECAL.at(ilow_layer).at(ihigh_layer);
-                config_var.high_resolution.layer_dphi_ECAL.at(ilow_layer).at(ihigh_layer) = config_var.max_phi / config_var.high_resolution.number_of_pixels_ECAL.at(ilow_layer).at(ihigh_layer);
-                config_var.high_resolution.number_of_pixels_flatten.push_back(config_var.high_resolution.number_of_pixels_ECAL.at(ilow_layer).at(ihigh_layer));
+                config_var.high_resolution.layer_deta_ECAL.at(ilow_layer).at(ihigh_layer) = 2 * config_var.max_eta_endcap / config_var.high_resolution.eta_segmentation_ECAL.at(ilow_layer).at(ihigh_layer);
+                config_var.high_resolution.layer_dphi_ECAL.at(ilow_layer).at(ihigh_layer) = config_var.max_phi / config_var.high_resolution.phi_segmentation_ECAL.at(ilow_layer).at(ihigh_layer);
+                config_var.high_resolution.eta_segmentation_flatten.push_back(config_var.high_resolution.eta_segmentation_ECAL.at(ilow_layer).at(ihigh_layer));
+                config_var.high_resolution.phi_segmentation_flatten.push_back(config_var.high_resolution.phi_segmentation_ECAL.at(ilow_layer).at(ihigh_layer));
+                // TODO: Add number of pixels.
                 config_var.high_resolution.layer_dphi_flatten.push_back(config_var.high_resolution.layer_dphi_ECAL.at(ilow_layer).at(ihigh_layer));
                 config_var.high_resolution.layer_deta_flatten.push_back(config_var.high_resolution.layer_deta_ECAL.at(ilow_layer).at(ihigh_layer));
                 long double r_out = r_inn + config_var.high_resolution.resolution_width_of_ECAL_layers_in_X0.at(ilow_layer).at(ihigh_layer) * config_var.Material_ECAL->GetRadlen();
@@ -212,10 +229,12 @@ Config_reader_func::Config_reader_func(std::string path, Config_reader_var &conf
             kNLayers += nHigh_Layers;
             for (int ihigh_layer = 0; ihigh_layer < nHigh_Layers; ihigh_layer++)
             {
-                config_var.high_resolution.layer_deta_HCAL.at(ilow_layer).at(ihigh_layer) = 2 * config_var.max_eta_endcap / config_var.high_resolution.number_of_pixels_HCAL.at(ilow_layer).at(ihigh_layer);
-                config_var.high_resolution.layer_dphi_HCAL.at(ilow_layer).at(ihigh_layer) = config_var.max_phi / config_var.high_resolution.number_of_pixels_HCAL.at(ilow_layer).at(ihigh_layer);
+                config_var.high_resolution.layer_deta_HCAL.at(ilow_layer).at(ihigh_layer) = 2 * config_var.max_eta_endcap / config_var.high_resolution.eta_segmentation_HCAL.at(ilow_layer).at(ihigh_layer);
+                config_var.high_resolution.layer_dphi_HCAL.at(ilow_layer).at(ihigh_layer) = config_var.max_phi / config_var.high_resolution.phi_segmentation_HCAL.at(ilow_layer).at(ihigh_layer);
                 long double r_out = r_inn + config_var.high_resolution.resolution_width_of_HCAL_layers_in_Lambda_int.at(ilow_layer).at(ihigh_layer) * config_var.Material_HCAL->GetNuclearInterLength(); // Material_H->GetRadlen();
-                config_var.high_resolution.number_of_pixels_flatten.push_back(config_var.high_resolution.number_of_pixels_HCAL.at(ilow_layer).at(ihigh_layer));
+                config_var.high_resolution.eta_segmentation_flatten.push_back(config_var.high_resolution.eta_segmentation_HCAL.at(ilow_layer).at(ihigh_layer));
+                config_var.high_resolution.phi_segmentation_flatten.push_back(config_var.high_resolution.phi_segmentation_HCAL.at(ilow_layer).at(ihigh_layer));
+                // TODO: Add number of pixels.
                 config_var.high_resolution.layer_dphi_flatten.push_back(config_var.high_resolution.layer_dphi_HCAL.at(ilow_layer).at(ihigh_layer));
                 config_var.high_resolution.layer_deta_flatten.push_back(config_var.high_resolution.layer_deta_HCAL.at(ilow_layer).at(ihigh_layer));
                 config_var.high_resolution.layer_inn_radius_HCAL.at(ilow_layer).at(ihigh_layer) = r_inn;

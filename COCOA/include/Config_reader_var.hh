@@ -37,6 +37,14 @@ struct Geometry_definition
     std::vector<std::vector<int>> number_of_pixels_HCAL;
     std::vector<int> number_of_pixels_flatten;
 
+    std::vector<std::vector<int>> eta_segmentation_ECAL;
+    std::vector<std::vector<int>> phi_segmentation_ECAL;
+    std::vector<std::vector<int>> eta_segmentation_HCAL;
+    std::vector<std::vector<int>> phi_segmentation_HCAL;
+    std::vector<int> eta_segmentation_flatten;
+    std::vector<int> phi_segmentation_flatten;
+
+
     std::vector<std::vector<long double>> resolution_width_of_ECAL_layers_in_X0;
     std::vector<std::vector<long double>> resolution_width_of_HCAL_layers_in_Lambda_int;
 };
