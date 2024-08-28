@@ -568,15 +568,24 @@ std::vector<G4VSolid*>* CalorimeterConstruction::MergeCells( std::vector<G4VSoli
     // Cell merging to allow for different granularities depending on the layer.
     // Use G4MultiUnion because it scales better for many nodes.
     //
+
+    // Identity transformation for G4MultiUnion object. 
+    // Declaring this outside since AddNode() makes a local copy anyways.
+    G4Transform3D id = G4Transform3D();
+
     std::vector<G4VSolid*>* ptr_cells_final = new std::vector<G4VSolid*>;
     for ( int iCellFinal = 0; iCellFinal < NumberOfPixel / ( 4 * cellMergeFactor ); ++iCellFinal ) {
+        
         G4MultiUnion* cell_merged = new G4MultiUnion("Barrel_cell_merged");
-	for ( int iCellSummand = 0; iCellSummand < cellMergeFactor; ++iCellSummand ) {
-            // Don't want to translate, so give empty transformation
-            cell_merged->AddNode(*cells_to_merge->at(iCellFinal * cellMergeFactor + iCellSummand), G4Transform3D());
-	    }
-            cell_merged->Voxelize();
-	    ptr_cells_final->push_back( cell_merged );
-	    }
+
+        for ( int iCellSummand = 0; iCellSummand < cellMergeFactor; ++iCellSummand ) {
+            // Give it the identity transformation.
+            cell_merged->AddNode(*cells_to_merge->at(iCellFinal * cellMergeFactor + iCellSummand), id);
+	}
+    
+        cell_merged->Voxelize();
+	ptr_cells_final->push_back( cell_merged );
+    }
+
     return ptr_cells_final;
 }
