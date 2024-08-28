@@ -21,6 +21,7 @@
 #include "G4PVPlacement.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4MultiUnion.hh"
+#include "G4UnionSolid.hh"
 #include "G4PVParameterised.hh"
 // #include "CaloRCellParameterisation.hh"
 // #include "DetectorGeometryDefinitions.hh"
@@ -560,7 +561,7 @@ bool CalorimeterConstruction::CheckMergeFactor( int NumberOfPixel, int cellMerge
     
 }
 
-
+/*
 std::vector<G4VSolid*>* CalorimeterConstruction::MergeCells( std::vector<G4VSolid*>* cells_to_merge,
 							     int NumberOfPixel,
 							     int cellMergeFactor ) {
@@ -587,5 +588,25 @@ std::vector<G4VSolid*>* CalorimeterConstruction::MergeCells( std::vector<G4VSoli
 	ptr_cells_final->push_back( cell_merged );
     }
 
+    return ptr_cells_final;
+}
+*/
+
+std::vector<G4VSolid*>* CalorimeterConstruction::MergeCells( std::vector<G4VSolid*>* cells_to_merge,
+							     int NumberOfPixel,
+							     int cellMergeFactor ) {
+    //
+    // Cell merging to allow for different granularities depending on the layer.
+    //
+    std::vector<G4VSolid*>* ptr_cells_final = new std::vector<G4VSolid*>;
+    for ( int iCellFinal = 0; iCellFinal < NumberOfPixel / ( 4 * cellMergeFactor ); ++iCellFinal ) {
+	G4VSolid* cell_merged = cells_to_merge->at( iCellFinal * cellMergeFactor );
+	for ( int iCellSummand = 1; iCellSummand < cellMergeFactor; ++iCellSummand ) {
+	    cell_merged = new G4UnionSolid( "Barrel_cell_merged",
+						    cell_merged,
+					    cells_to_merge->at( iCellFinal * cellMergeFactor + iCellSummand ));
+		}
+		ptr_cells_final->push_back( cell_merged );
+	    }
     return ptr_cells_final;
 }

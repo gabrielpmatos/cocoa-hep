@@ -352,7 +352,6 @@ void SteppingAction::UserSteppingAction(const G4Step *astep)
 	
 	if (foundTraj && edep > 0.)
 	{
-
 	        std::string volume_name = touch1->GetVolume()->GetName();
 	        int *Bin                = CellIndex( volume_name.c_str(),
 						     PreStepPoint.x(),
