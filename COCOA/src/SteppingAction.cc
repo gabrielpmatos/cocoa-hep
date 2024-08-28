@@ -132,7 +132,7 @@ int *SteppingAction::CellIndex(const char* cellName, double XPos, double YPos, d
 	    // Phi definition used here does not perfectly match the one used in the cell definition. A rotation in phi is considered Ok though.
 	    //
 	{
-		int nLow_Layers = geometry.number_of_pixels_flatten.size();
+		int nLow_Layers = geometry.eta_segmentation_flatten.size();
 		for (int ilow_layer = 0; ilow_layer < nLow_Layers; ilow_layer++)
 		{
 		    if ( r_sqr >= pow(geometry.layer_inn_radius_flatten.at(ilow_layer), 2) &&
@@ -147,7 +147,7 @@ int *SteppingAction::CellIndex(const char* cellName, double XPos, double YPos, d
 	}
 	else if (EtaPos >= -1 * config_json_var.max_eta_endcap && EtaPos < -1 * config_json_var.max_eta_barrel)
 	{
-		int nLow_Layers = geometry.number_of_pixels_flatten.size();
+		int nLow_Layers = geometry.eta_segmentation_flatten.size();
 		for (int ilow_layer = 0; ilow_layer < nLow_Layers; ilow_layer++)
 		{
 			if (ZPos >= -1 * cone_max_length_flatten.at(ilow_layer) &&
@@ -161,7 +161,7 @@ int *SteppingAction::CellIndex(const char* cellName, double XPos, double YPos, d
 	}
 	else if (EtaPos > config_json_var.max_eta_barrel && EtaPos <= config_json_var.max_eta_endcap)
 	{
-		int nLow_Layers = geometry.number_of_pixels_flatten.size();
+		int nLow_Layers = geometry.eta_segmentation_flatten.size();
 		for (int ilow_layer = 0; ilow_layer < nLow_Layers; ilow_layer++)
 		{
 			if (ZPos >= cone_min_length_flatten.at(ilow_layer) &&
@@ -265,10 +265,10 @@ void SteppingAction::UserSteppingAction(const G4Step *astep)
 		G4double step_l = astep->GetStepLength();
 		int lay_count = 0;
 		bool if_track = true;
-		int num_ecal_layers = geometry.number_of_pixels_ECAL.size();
+		int num_ecal_layers = geometry.eta_segmentation_ECAL.size();
 		for (int iecal_low = 0; iecal_low < num_ecal_layers; iecal_low++)
 		{
-			int num_sub_ecal_layrs = geometry.number_of_pixels_ECAL.at(iecal_low).size();
+			int num_sub_ecal_layrs = geometry.eta_segmentation_ECAL.at(iecal_low).size();
 			for (int iecal_high = 0; iecal_high < num_sub_ecal_layrs; iecal_high++)
 			{
 				if (lvol->GetName()==Name_creation(strdup("ECALN_N_forward_LV"),iecal_low,iecal_high)||
@@ -283,10 +283,10 @@ void SteppingAction::UserSteppingAction(const G4Step *astep)
 			}
 		}
 		lay_count++;
-		int num_hcal_layers = geometry.number_of_pixels_HCAL.size();
+		int num_hcal_layers = geometry.eta_segmentation_HCAL.size();
 		for (int ihcal_low = 0; ihcal_low < num_hcal_layers; ihcal_low++)
 		{
-			int num_sub_hcal_layers = geometry.number_of_pixels_HCAL.at(ihcal_low).size();
+			int num_sub_hcal_layers = geometry.eta_segmentation_HCAL.at(ihcal_low).size();
 			for (int ihcal_high = 0; ihcal_high < num_sub_hcal_layers; ihcal_high++)
 			{
 				if (lvol->GetName()==Name_creation(strdup("HCALN_N_forward_LV"),ihcal_low,ihcal_high)||
@@ -386,7 +386,7 @@ void SteppingAction::UserSteppingAction(const G4Step *astep)
 		
 		if ((*Bin >= 0 && *Bin < geometry.kNLayers))
 		{
-			if ((*(Bin + 1) >= 0 && *(Bin + 1) < geometry.number_of_pixels_flatten.at(*Bin)) && (*(Bin + 2) >= 0 && *(Bin + 2) < geometry.number_of_pixels_flatten.at(*Bin)))
+			if ((*(Bin + 1) >= 0 && *(Bin + 1) < geometry.eta_segmentation_flatten.at(*Bin)) && (*(Bin + 2) >= 0 && *(Bin + 2) < geometry.phi_segmentation_flatten.at(*Bin)))
 			{
 				Etot = Ech + Enu;
 				// runData->AddTotalEnergy(Ech, Enu);

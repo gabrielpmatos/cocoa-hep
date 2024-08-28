@@ -270,8 +270,8 @@ void Particle_flow_func::cell_by_cell_subst(Track_struct &track)
         float size_cell_list = cell_list.size();
         for (int ilay = 0; ilay < (int)geometry.kNLayers; ilay++)
         {
-            float factor = 1.2 * geometry.layer_deta_flatten.at(ilay);
-            for (int iradius = 0; iradius < (int)(geometry.number_of_pixels_flatten.at(ilay) / 2) + 1; iradius++)
+            float factor = 1.2 * geometry.layer_deta_flatten.at(ilay); // Calculate ring from eta segmentation.
+            for (int iradius = 0; iradius < (int)(geometry.eta_segmentation_flatten.at(ilay) / 2) + 1; iradius++)
             {
                 Ring_substraction ring;
                 ring.layer = ilay;

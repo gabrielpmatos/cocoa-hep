@@ -25,8 +25,12 @@ private:
     int init_high;
     Config_reader_var &config_var = Config_reader_var::GetInstance();
     void sum_pixels(std::vector<std::vector<std::vector<Cell>>> &CellArray_High, std::vector<std::vector<std::vector<Cell>>> &CellArray_Low,
-                    std::vector<std::vector<int>> Low_pixel, std::vector<std::vector<int>> High_pixel);
+                    std::vector<std::vector<int>> Low_eta, std::vector<std::vector<int>> High_eta,
+                    std::vector<std::vector<int>> Low_phi, std::vector<std::vector<int>> High_phi);
+
     void topo_label_apply(std::vector<std::vector<std::vector<Cell>>> &CellArray_High, std::vector<std::vector<std::vector<Cell>>> &CellArray_Low,
-                          std::vector<std::vector<int>> Low_pixel, std::vector<std::vector<int>> High_pixel);
+                          std::vector<std::vector<int>> Low_eta, std::vector<std::vector<int>> High_eta,
+                          std::vector<std::vector<int>> Low_phi, std::vector<std::vector<int>> High_phi);
+
 };
 #endif // __DOWNRESOLUTION_H__

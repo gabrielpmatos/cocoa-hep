@@ -5,8 +5,12 @@ ReduceResolution::ReduceResolution(std::vector<std::vector<std::vector<Cell>>> &
 {
     init_low = 0;
     init_high = 0;
-    sum_pixels(CellArray_High, CellArray_Low, config_var.low_resolution.number_of_pixels_ECAL, config_var.high_resolution.number_of_pixels_ECAL);
-    sum_pixels(CellArray_High, CellArray_Low, config_var.low_resolution.number_of_pixels_HCAL, config_var.high_resolution.number_of_pixels_HCAL);
+    sum_pixels(CellArray_High, CellArray_Low, 
+               config_var.low_resolution.eta_segmentation_ECAL, config_var.high_resolution.eta_segmentation_ECAL,
+               config_var.low_resolution.phi_segmentation_ECAL, config_var.high_resolution.phi_segmentation_ECAL);
+    sum_pixels(CellArray_High, CellArray_Low, 
+               config_var.low_resolution.eta_segmentation_HCAL, config_var.high_resolution.eta_segmentation_HCAL,
+               config_var.low_resolution.phi_segmentation_HCAL, config_var.high_resolution.phi_segmentation_HCAL);
 }
 
 ReduceResolution::ReduceResolution() 
@@ -20,14 +24,15 @@ ReduceResolution::~ReduceResolution()
 
 void ReduceResolution::sum_pixels(std::vector<std::vector<std::vector<Cell>>> &CellArray_High,
                                   std::vector<std::vector<std::vector<Cell>>> &CellArray_Low,
-                                  std::vector<std::vector<int>> Low_pixel, std::vector<std::vector<int>> High_pixel)
+                                  std::vector<std::vector<int>> Low_eta, std::vector<std::vector<int>> High_eta,
+                                  std::vector<std::vector<int>> Low_phi, std::vector<std::vector<int>> High_phi)
 {
 
-    for (int ilow_lay = 0; ilow_lay < (int)Low_pixel.size(); ilow_lay++)
+    for (int ilow_lay = 0; ilow_lay < (int)Low_eta.size(); ilow_lay++)
     {
-        for (int ilow_eta = 0; ilow_eta < Low_pixel.at(ilow_lay).at(0); ilow_eta++)
+        for (int ilow_eta = 0; ilow_eta < Low_eta.at(ilow_lay).at(0); ilow_eta++)
         {
-            for (int ilow_phi = 0; ilow_phi < Low_pixel.at(ilow_lay).at(0); ilow_phi++)
+            for (int ilow_phi = 0; ilow_phi < Low_phi.at(ilow_lay).at(0); ilow_phi++)
             {
                 // CellArray_Low.at(ilow_lay + init_low).at(ilow_eta).at(ilow_phi).set_noise_signal(gRandom->Gaus(0., config_var.low_resolution.layer_noise_ECAL.at(ilow_lay).at(0)) * MeV);
                 std::vector<Particle_dep_in_cell> ParticlesInClust;
@@ -36,12 +41,14 @@ void ReduceResolution::sum_pixels(std::vector<std::vector<std::vector<Cell>>> &C
                 double CellNuSignal = 0;  //CellTotSignal;
                 std::vector<std::vector<int>> low_cell_link;
                 std::vector<std::vector<int>> high_cell_link= {{ilow_lay + init_low, ilow_eta, ilow_phi}};
-                for (int ihigh_lay = 0; ihigh_lay < (int)High_pixel.at(ilow_lay).size(); ihigh_lay++)
+                for (int ihigh_lay = 0; ihigh_lay < (int)High_eta.at(ilow_lay).size(); ihigh_lay++)
                 {
-                    int scale = High_pixel.at(ilow_lay).at(ihigh_lay) / Low_pixel.at(ilow_lay).at(0);
-                    for (int ihigh_eta = scale * ilow_eta; ihigh_eta < scale * (ilow_eta + 1); ihigh_eta++)
+                    int eta_scale = High_eta.at(ilow_lay).at(ihigh_lay) / Low_eta.at(ilow_lay).at(0);
+                    int phi_scale = High_phi.at(ilow_lay).at(ihigh_lay) / Low_phi.at(ilow_phi).at(0);
+
+                    for (int ihigh_eta = eta_scale * ilow_eta; ihigh_eta < eta_scale * (ilow_eta + 1); ihigh_eta++)
                     {
-                        for (int ihigh_phi = scale * ilow_phi; ihigh_phi < scale * (ilow_phi + 1); ihigh_phi++)
+                        for (int ihigh_phi = phi_scale * ilow_phi; ihigh_phi < phi_scale * (ilow_phi + 1); ihigh_phi++)
                         {
                             low_cell_link.push_back({init_high + ihigh_lay, ihigh_eta, ihigh_phi});
                             CellArray_High.at(init_high + ihigh_lay).at(ihigh_eta).at(ihigh_phi).set_cell_link_superres(high_cell_link);
@@ -70,9 +77,9 @@ void ReduceResolution::sum_pixels(std::vector<std::vector<std::vector<Cell>>> &C
                 CellArray_Low.at(ilow_lay + init_low).at(ilow_eta).at(ilow_phi).set_cell_link_superres(low_cell_link);
             }
         }
-        init_high += High_pixel.at(ilow_lay).size();
+        init_high += High_eta.at(ilow_lay).size();
     }
-    init_low = Low_pixel.size();
+    init_low = Low_eta.size();
     apply_noise(CellArray_Low);
 }
 
@@ -80,8 +87,14 @@ void ReduceResolution::link_apply(std::vector<std::vector<std::vector<Cell>>> &C
 {
     init_low = 0;
     init_high = 0;
-    topo_label_apply(CellArray_High, CellArray_Low, config_var.low_resolution.number_of_pixels_ECAL, config_var.high_resolution.number_of_pixels_ECAL);
-    topo_label_apply(CellArray_High, CellArray_Low, config_var.low_resolution.number_of_pixels_HCAL, config_var.high_resolution.number_of_pixels_HCAL);
+    topo_label_apply(CellArray_High, CellArray_Low,
+                     config_var.low_resolution.eta_segmentation_ECAL, config_var.high_resolution.eta_segmentation_ECAL,
+                     config_var.low_resolution.phi_segmentation_ECAL, config_var.high_resolution.phi_segmentation_ECAL);
+
+    topo_label_apply(CellArray_High, CellArray_Low,
+                     config_var.low_resolution.eta_segmentation_HCAL, config_var.high_resolution.eta_segmentation_HCAL,
+                     config_var.low_resolution.phi_segmentation_HCAL, config_var.high_resolution.phi_segmentation_HCAL);
+
 }
 
 void ReduceResolution::apply_noise(std::vector<std::vector<std::vector<Cell>>> &CellArray) 
@@ -99,21 +112,25 @@ void ReduceResolution::apply_noise(std::vector<std::vector<std::vector<Cell>>> &
 }
 
 void ReduceResolution::topo_label_apply(std::vector<std::vector<std::vector<Cell>>> &CellArray_High, std::vector<std::vector<std::vector<Cell>>> &CellArray_Low,
-                                        std::vector<std::vector<int>> Low_pixel, std::vector<std::vector<int>> High_pixel)
+                                        std::vector<std::vector<int>> Low_eta, std::vector<std::vector<int>> High_eta,
+                                        std::vector<std::vector<int>> Low_phi, std::vector<std::vector<int>> High_phi)
+
 {
-    for (int ilow_lay = 0; ilow_lay < (int)Low_pixel.size(); ilow_lay++)
+    for (int ilow_lay = 0; ilow_lay < (int)Low_eta.size(); ilow_lay++)
     {
-        for (int ilow_eta = 0; ilow_eta < Low_pixel.at(ilow_lay).at(0); ilow_eta++)
+        for (int ilow_eta = 0; ilow_eta < Low_eta.at(ilow_lay).at(0); ilow_eta++)
         {
-            for (int ilow_phi = 0; ilow_phi < Low_pixel.at(ilow_lay).at(0); ilow_phi++)
+            for (int ilow_phi = 0; ilow_phi < Low_phi.at(ilow_lay).at(0); ilow_phi++)
             {
                 int label = CellArray_Low.at(ilow_lay + init_low).at(ilow_eta).at(ilow_phi).get_label();
-                for (int ihigh_lay = 0; ihigh_lay < (int)High_pixel.at(ilow_lay).size(); ihigh_lay++)
+                for (int ihigh_lay = 0; ihigh_lay < (int)High_eta.at(ilow_lay).size(); ihigh_lay++)
                 {
-                    int scale = High_pixel.at(ilow_lay).at(ihigh_lay) / Low_pixel.at(ilow_lay).at(0);
-                    for (int ihigh_eta = scale * ilow_eta; ihigh_eta < scale * (ilow_eta + 1); ihigh_eta++)
+                    int eta_scale = High_eta.at(ilow_lay).at(ihigh_lay) / Low_eta.at(ilow_lay).at(0);
+                    int phi_scale = High_phi.at(ilow_lay).at(ihigh_lay) / Low_phi.at(ilow_lay).at(0);
+
+                    for (int ihigh_eta = eta_scale * ilow_eta; ihigh_eta < eta_scale * (ilow_eta + 1); ihigh_eta++)
                     {
-                        for (int ihigh_phi = scale * ilow_phi; ihigh_phi < scale * (ilow_phi + 1); ihigh_phi++)
+                        for (int ihigh_phi = phi_scale * ilow_phi; ihigh_phi < phi_scale * (ilow_phi + 1); ihigh_phi++)
                         {
                             CellArray_High.at(init_high + ihigh_lay).at(ihigh_eta).at(ihigh_phi).set_label(label);
                         }
@@ -121,7 +138,7 @@ void ReduceResolution::topo_label_apply(std::vector<std::vector<std::vector<Cell
                 }
             }
         }
-        init_high += High_pixel.at(ilow_lay).size();
+        init_high += High_eta.at(ilow_lay).size();
     }
-    init_low = Low_pixel.size();
+    init_low = Low_eta.size();
 }
