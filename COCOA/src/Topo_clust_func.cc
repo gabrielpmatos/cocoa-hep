@@ -204,10 +204,13 @@ void Topo_clust_func::cluster_maker(std::vector<Cell *> &seeds)
 void Topo_clust_func::cluster_maker_neighbor(std::vector<Cell *> &seeds, int list_size)
 {
     Cell *cell = seeds.front();
-    std::vector<float> layer_step(Nlayers - 1, 1);
+    std::vector<float> layer_step_eta(Nlayers - 1, 1); // Need different steps in eta and phi
+    std::vector<float> layer_step_phi(Nlayers - 1, 1);
+
     for (int ilay = 0; ilay < Nlayers - 1; ilay++)
     {
-        layer_step.at(ilay) = ( (float)Cells_Array.at(ilay).size() / (float)Cells_Array.at(ilay + 1).size());
+        layer_step_eta.at(ilay) = ( (float)Cells_Array.at(ilay).size() / (float)Cells_Array.at(ilay + 1).size());
+        layer_step_phi.at(ilay) = ( (float)Cells_Array.at(ilay).at(0).size() /  (float)Cells_Array.at(ilay + 1).at(0).size());
     }
     cell->set_size_of_seeds_list(list_size);
 
@@ -218,16 +221,16 @@ void Topo_clust_func::cluster_maker_neighbor(std::vector<Cell *> &seeds, int lis
         {
             if (ilay_step == 1) //Todo: try if next layer has high gran. by if (layer_step.at(next_layer-1] > 1)
             {
-                Cell &neighbor_cell = Cells_Array.at(next_layer).at((int)floor(((float)cell->get_eta()) / layer_step.at(next_layer - 1))).at((int)floor(((float)cell->get_phi()) / layer_step.at(next_layer - 1)));
+                Cell &neighbor_cell = Cells_Array.at(next_layer).at((int)floor(((float)cell->get_eta()) / layer_step_eta.at(next_layer - 1))).at((int)floor(((float)cell->get_phi()) / layer_step_phi.at(next_layer - 1)));
                 cluster_maker_add_cell(*cell, neighbor_cell, seeds);
             }
             else //* ilay_step==-1
             {
-                for (int layer_stepStepEta = 0; layer_stepStepEta < layer_step.at(next_layer); layer_stepStepEta++)
+                for (int layer_stepStepEta = 0; layer_stepStepEta < layer_step_eta.at(next_layer); layer_stepStepEta++)
                 {
-                    for (int layer_stepStepPhi = 0; layer_stepStepPhi < layer_step.at(next_layer); layer_stepStepPhi++)
+                    for (int layer_stepStepPhi = 0; layer_stepStepPhi < layer_step_phi.at(next_layer); layer_stepStepPhi++)
                     {
-                        Cell &neighbor_cell = Cells_Array.at(next_layer).at(cell->get_eta() * layer_step.at(next_layer) + layer_stepStepEta).at(cell->get_phi() * layer_step.at(next_layer) + layer_stepStepPhi);
+                        Cell &neighbor_cell = Cells_Array.at(next_layer).at(cell->get_eta() * layer_step_eta.at(next_layer) + layer_stepStepEta).at(cell->get_phi() * layer_step_phi.at(next_layer) + layer_stepStepPhi);
                         cluster_maker_add_cell(*cell, neighbor_cell, seeds);
                     }
                 }
@@ -249,6 +252,7 @@ void Topo_clust_func::cluster_maker_neighbor(std::vector<Cell *> &seeds, int lis
         }
     }
     seeds.erase(seeds.begin());
+
 }
 
 void Topo_clust_func::cluster_maker_add_cell(Cell &cell, Cell &neighbor_cell, std::vector<Cell *> &seeds)
@@ -400,10 +404,13 @@ bool Topo_clust_func::is_cell_local_max(Cell &cell)
     bool is_max = true;
     if (cell.get_label()!=0 && cell_ener > topo_config.local_max_seed_energy)
     {
-        std::vector<float> layer_step(Nlayers - 1, 1);
+        std::vector<float> layer_step_eta(Nlayers - 1, 1);
+        std::vector<float> layer_step_phi(Nlayers - 1, 1);
+
         for (int ilay = 0; ilay < Nlayers - 1; ilay++)
         {
-            layer_step.at(ilay) = ((float)Cells_Array.at(ilay).size() / (float)Cells_Array.at(ilay + 1).size());
+            layer_step_eta.at(ilay) = ( (float)Cells_Array.at(ilay).size() / (float)Cells_Array.at(ilay + 1).size());
+            layer_step_phi.at(ilay) = ( (float)Cells_Array.at(ilay).at(0).size() /  (float)Cells_Array.at(ilay + 1).at(0).size());
         }
 
         for (int i = -1; i < 2; i += 2)
@@ -413,18 +420,18 @@ bool Topo_clust_func::is_cell_local_max(Cell &cell)
             {
                 if (i == 1)
                 {
-                    Cell &neighbor_cell = Cells_Array.at(next_layer).at((int)floor(((float)cell.get_eta()) / (layer_step.at(next_layer - 1)))).at((int)floor(cell.get_phi() / (layer_step.at(next_layer - 1))));
+                    Cell &neighbor_cell = Cells_Array.at(next_layer).at((int)floor(((float)cell.get_eta()) / (layer_step_eta.at(next_layer - 1)))).at((int)floor(cell.get_phi() / (layer_step_phi.at(next_layer - 1))));
                     if (neighbor_cell.get_label() > 0)
                         num_neighbors++;
                     is_max = ((neighbor_cell.get_total_energy() < cell_ener) && is_max);
                 }
                 else
                 {
-                    for (int layer_stepStepEta = 0; layer_stepStepEta < layer_step.at(next_layer); layer_stepStepEta++)
+                    for (int layer_stepStepEta = 0; layer_stepStepEta < layer_step_eta.at(next_layer); layer_stepStepEta++)
                     {
-                        for (int layer_stepStepPhi = 0; layer_stepStepPhi < layer_step.at(next_layer); layer_stepStepPhi++)
+                        for (int layer_stepStepPhi = 0; layer_stepStepPhi < layer_step_phi.at(next_layer); layer_stepStepPhi++)
                         {
-                            Cell &neighbor_cell = Cells_Array.at(next_layer).at((int)(cell.get_eta() * (layer_step.at(next_layer)) + layer_stepStepEta)).at((int)(cell.get_phi() * (layer_step.at(next_layer)) + layer_stepStepPhi));
+                            Cell &neighbor_cell = Cells_Array.at(next_layer).at((int)(cell.get_eta() * (layer_step_eta.at(next_layer)) + layer_stepStepEta)).at((int)(cell.get_phi() * (layer_step_phi.at(next_layer)) + layer_stepStepPhi));
                             if (neighbor_cell.get_label() > 0)
                                 num_neighbors++;
                             is_max = ((neighbor_cell.get_total_energy() < cell_ener) && is_max);
@@ -441,7 +448,7 @@ bool Topo_clust_func::is_cell_local_max(Cell &cell)
                 int step_phi = cell.get_phi() + j;
                 if (step_eta >= 0 && step_eta < (int)Cells_Array.at(cell.get_layer()).size() && (i != 0 || j != 0))
                 {
-                    Cell &neighbor_cell = Cells_Array.at(cell.get_layer()).at(step_eta).at(modulo(step_phi, Cells_Array.at(cell.get_layer()).size()));
+                    Cell &neighbor_cell = Cells_Array.at(cell.get_layer()).at(step_eta).at(modulo(step_phi, Cells_Array.at(cell.get_layer()).at(step_eta).size()));
                     if (neighbor_cell.get_label() > 0)
                         num_neighbors++;
                     is_max = ((neighbor_cell.get_total_energy() < cell_ener) && is_max);
@@ -525,10 +532,13 @@ void Topo_clust_func::cluster_split(std::vector<Cell *> &local_maxs, std::vector
 
 void Topo_clust_func::cluster_share_neighbor(Cell &cell, std::vector<Cell *> &shares, int clust_label)
 {
-    std::vector<float> layer_step(Nlayers - 1, 1);
+    std::vector<float> layer_step_eta(Nlayers - 1, 1);
+    std::vector<float> layer_step_phi(Nlayers - 1, 1);
+
     for (int ilay = 0; ilay < Nlayers - 1; ilay++)
     {
-        layer_step.at(ilay) = ((float)Cells_Array.at(ilay).size() / (float)Cells_Array.at(ilay + 1).size());
+        layer_step_eta.at(ilay) = ( (float)Cells_Array.at(ilay).size() / (float)Cells_Array.at(ilay + 1).size());
+        layer_step_phi.at(ilay) = ( (float)Cells_Array.at(ilay).at(0).size() /  (float)Cells_Array.at(ilay + 1).at(0).size());
     }
     for (int ilay_step = -1; ilay_step < 2; ilay_step += 2)
     {
@@ -537,8 +547,8 @@ void Topo_clust_func::cluster_share_neighbor(Cell &cell, std::vector<Cell *> &sh
         {
             if (ilay_step == 1) //Todo
             {
-                int eta_idx = (int)floor(((float)cell.get_eta()) / layer_step.at(next_layer - 1));
-                int phi_idx = (int)floor(((float)cell.get_phi()) / layer_step.at(next_layer - 1));
+                int eta_idx = (int)floor(((float)cell.get_eta()) / layer_step_eta.at(next_layer - 1));
+                int phi_idx = (int)floor(((float)cell.get_phi()) / layer_step_phi.at(next_layer - 1));
                 Cell &neighbor_cell = Cells_Array.at(next_layer).at(eta_idx).at(phi_idx);
                 if (neighbor_cell.get_label() == clust_label && neighbor_cell.get_1st_local_max_label() == 0)
                 {
@@ -553,12 +563,12 @@ void Topo_clust_func::cluster_share_neighbor(Cell &cell, std::vector<Cell *> &sh
             }
             else
             {
-                for (int layer_step_step_eta = 0; layer_step_step_eta < layer_step.at(next_layer); layer_step_step_eta++)
+                for (int layer_step_step_eta = 0; layer_step_step_eta < layer_step_eta.at(next_layer); layer_step_step_eta++)
                 {
-                    int eta_idx = (int)(cell.get_eta() * layer_step.at(next_layer) + layer_step_step_eta);
-                    for (int layer_step_step_phi = 0; layer_step_step_phi < layer_step.at(next_layer); layer_step_step_phi++)
+                    int eta_idx = (int)(cell.get_eta() * layer_step_eta.at(next_layer) + layer_step_step_eta);
+                    for (int layer_step_step_phi = 0; layer_step_step_phi < layer_step_phi.at(next_layer); layer_step_step_phi++)
                     {
-                        int phi_idx = (int)(cell.get_phi() * layer_step.at(next_layer) + layer_step_step_phi);
+                        int phi_idx = (int)(cell.get_phi() * layer_step_phi.at(next_layer) + layer_step_step_phi);
                         Cell &neighbor_cell = Cells_Array.at(next_layer).at(eta_idx).at(phi_idx);
                         if (neighbor_cell.get_label() == clust_label && neighbor_cell.get_1st_local_max_label() == 0)
                         {
@@ -583,7 +593,7 @@ void Topo_clust_func::cluster_share_neighbor(Cell &cell, std::vector<Cell *> &sh
 
                 if (step_eta >= 0 && step_eta < (int)Cells_Array.at(cell.get_layer()).size() && (i != 0 || j != 0))
                 {
-                    Cell &neighbor_cell = Cells_Array.at(cell.get_layer()).at(step_eta).at(modulo(step_phi, Cells_Array.at(cell.get_layer()).size()));
+                    Cell &neighbor_cell = Cells_Array.at(cell.get_layer()).at(step_eta).at(modulo(step_phi, Cells_Array.at(cell.get_layer()).at(step_eta).size()));
                     if (neighbor_cell.get_label() == clust_label && neighbor_cell.get_1st_local_max_label() == 0)
                     {
                         neighbor_cell.set_is_cell_shared(true);
@@ -602,10 +612,13 @@ void Topo_clust_func::cluster_share_neighbor(Cell &cell, std::vector<Cell *> &sh
 
 void Topo_clust_func::cluster_split_neighbor(std::vector<Cell *> &local_max_cells_in_clust, std::vector<Cell *> &shares, int clust_label, int list_size)
 {
-    std::vector<float> layer_step(Nlayers - 1, 1);
+    std::vector<float> layer_step_eta(Nlayers - 1, 1);
+    std::vector<float> layer_step_phi(Nlayers - 1, 1);
+
     for (int ilay = 0; ilay < Nlayers - 1; ilay++)
     {
-        layer_step.at(ilay) = ((float)Cells_Array.at(ilay).size() / (float)Cells_Array.at(ilay + 1).size());
+        layer_step_eta.at(ilay) = ( (float)Cells_Array.at(ilay).size() / (float)Cells_Array.at(ilay + 1).size());
+        layer_step_phi.at(ilay) = ( (float)Cells_Array.at(ilay).at(0).size() /  (float)Cells_Array.at(ilay + 1).at(0).size());
     }
     local_max_cells_in_clust.front()->set_size_of_seeds_list(list_size);
     for (int ilay_step = -1; ilay_step < 2; ilay_step += 2)
@@ -615,20 +628,20 @@ void Topo_clust_func::cluster_split_neighbor(std::vector<Cell *> &local_max_cell
         {
             if (ilay_step == 1) //Todo
             {
-                int eta_idx = (int)floor(((float)local_max_cells_in_clust.front()->get_eta()) / layer_step.at(next_layer - 1));
-                int phi_idx = (int)floor(((float)local_max_cells_in_clust.front()->get_phi()) / layer_step.at(next_layer - 1));
+                int eta_idx = (int)floor(((float)local_max_cells_in_clust.front()->get_eta()) / layer_step_eta.at(next_layer - 1));
+                int phi_idx = (int)floor(((float)local_max_cells_in_clust.front()->get_phi()) / layer_step_phi.at(next_layer - 1));
                 Cell &neighbor_cell = Cells_Array.at(next_layer).at(eta_idx).at(phi_idx);
                 if (neighbor_cell.get_label() == clust_label)
                     cluster_split_add_cell(*local_max_cells_in_clust.front(), local_max_cells_in_clust, shares, neighbor_cell);
             }
             else
             {
-                for (int layer_step_step_eta = 0; layer_step_step_eta < layer_step.at(next_layer); layer_step_step_eta++)
+                for (int layer_step_step_eta = 0; layer_step_step_eta < layer_step_eta.at(next_layer); layer_step_step_eta++)
                 {
-                    int eta_idx = (int)(local_max_cells_in_clust.front()->get_eta() * layer_step.at(next_layer) + layer_step_step_eta);
-                    for (int layer_step_step_phi = 0; layer_step_step_phi < layer_step.at(next_layer); layer_step_step_phi++)
+                    int eta_idx = (int)(local_max_cells_in_clust.front()->get_eta() * layer_step_eta.at(next_layer) + layer_step_step_eta);
+                    for (int layer_step_step_phi = 0; layer_step_step_phi < layer_step_phi.at(next_layer); layer_step_step_phi++)
                     {
-                        int phi_idx = (int)(local_max_cells_in_clust.front()->get_phi() * layer_step.at(next_layer) + layer_step_step_phi);
+                        int phi_idx = (int)(local_max_cells_in_clust.front()->get_phi() * layer_step_phi.at(next_layer) + layer_step_step_phi);
                         Cell &neighbor_cell = Cells_Array.at(next_layer).at(eta_idx).at(phi_idx);
                         if (neighbor_cell.get_label() == clust_label)
                             cluster_split_add_cell(*local_max_cells_in_clust.front(), local_max_cells_in_clust, shares, neighbor_cell);
@@ -646,7 +659,7 @@ void Topo_clust_func::cluster_split_neighbor(std::vector<Cell *> &local_max_cell
 
             if (step_eta >= 0 && step_eta < (int)Cells_Array.at(local_max_cells_in_clust.front()->get_layer()).size() && (i != 0 || j != 0))
             {
-                Cell &neighbor_cell = Cells_Array.at(local_max_cells_in_clust.front()->get_layer()).at(step_eta).at(modulo(step_phi, Cells_Array.at(local_max_cells_in_clust.front()->get_layer()).size()));
+                Cell &neighbor_cell = Cells_Array.at(local_max_cells_in_clust.front()->get_layer()).at(step_eta).at(modulo(step_phi, Cells_Array.at(local_max_cells_in_clust.front()->get_layer()).at(step_eta).size()));
                 if (neighbor_cell.get_label() == clust_label)
                     cluster_split_add_cell(*local_max_cells_in_clust.front(), local_max_cells_in_clust, shares, neighbor_cell);
             }
